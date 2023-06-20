@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Klobsinger/tinyapp/issues"
   },
-  "homepage": "https://github.com/Klobsinger/tinyapp#readme"
+  "homepage": "https://github.com/Klobsinger/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
