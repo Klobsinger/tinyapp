@@ -74,3 +74,9 @@ app.post("/urls/:id", (req, res) => {
   urlDatabase[id] = newURL;
   res.redirect('/urls/');
 });
+
+app.post("/login", (req, res) => {
+ const input = req.body.login
+  res.cookie('username',input)
+  res.redirect('/urls')
+});
