@@ -20,11 +20,12 @@
     <%- include('partials/_header') %>
     <main style="margin: 1em;">
       <h3>My URLs</h3>
-      <table class="table">
+      <table class="table table-condensed">
         <thead>
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
         </thead>
@@ -33,6 +34,11 @@
             <tr>
               <td> <a href="/u/<%= id %>"><%= id %></a></td>
               <td><%= urls[id] %></td>
+              <td>
+                <form method="Get" action="/urls/<%= id %>">
+                  <button type="submit" class="btn btn-primary">Edit</button>
+                </form>
+              </td>
               <td>
                 <form method="POST" action="/urls/<%= id %>/delete">
                   <button type="submit" class="btn btn-danger">Delete</button>
