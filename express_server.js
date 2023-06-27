@@ -92,3 +92,10 @@ app.post("/logout", (req, res) => {
    res.clearCookie('username',input)
    res.redirect('/urls')
  });
+
+ app.get("/register", (req, res) => {
+  const templateVars = { 
+    username: req.cookies['username'],
+    urls: urlDatabase };
+  res.render("register.ejs", templateVars); 
+});
