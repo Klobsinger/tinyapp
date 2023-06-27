@@ -23,15 +23,23 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  
+};
+
 app.get("/urls/new", (req, res) => {
-  templateVars = { username: req.cookies['username'] }
-  res.render("urls_new",templateVars);
+  const userId = req.cookies.userId;
+  const templateVars = { currentUser: users[userId] };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
+  const userId = req.cookies.userId;
   const templateVars = { 
-    username: req.cookies['username'],
-    id: req.params.id, longURL: urlDatabase[req.params.id] };
+    currentUser: users[userId],
+    id: req.params.id,
+    longURL: urlDatabase[req.params.id]
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -40,9 +48,11 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  const userId = req.cookies.userId;
   const templateVars = { 
-    username: req.cookies['username'],
-    urls: urlDatabase };
+    currentUser: users[userId],
+    urls: urlDatabase
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -94,8 +104,27 @@ app.post("/logout", (req, res) => {
  });
 
  app.get("/register", (req, res) => {
-  const templateVars = { 
-    username: req.cookies['username'],
-    urls: urlDatabase };
-  res.render("register.ejs", templateVars); 
+  const userId = req.cookies.userId;
+  const templateVars = {
+    currentUser: users[userId],
+    urls: urlDatabase
+  };
+  res.render("register.ejs", templateVars);
 });
+
+app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const id = generateRandomString()
+  
+  const newUser = {
+    id,
+    email,
+    password,
+  };
+  
+  users[id] = newUser;
+  res.cookie("userId", id);
+  console.log(users)
+  res.redirect('/urls')
+ });
