@@ -1,12 +1,12 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser())
-app.set('view engine', 'ejs')
+app.use(cookieParser());
+app.set('view engine', 'ejs');
 
-function generateRandomString() {
+const generateRandomString = function() {
   const alphanumericChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let randomString = '';
 
@@ -16,8 +16,9 @@ function generateRandomString() {
   }
 
   return randomString;
-}
-function getUserByEmail(email) {
+};
+
+const getUserByEmail = function(email) {
   for (const userKey in users) {
     const user = users[userKey];
     if (user.email === email) {
@@ -25,10 +26,7 @@ function getUserByEmail(email) {
     }
   }
   return null;
-}
-
-
-
+};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -47,7 +45,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const userId = req.cookies.userId;
-  const templateVars = { 
+  const templateVars = {
     currentUser: users[userId],
     id: req.params.id,
     longURL: urlDatabase[req.params.id]
@@ -61,7 +59,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userId = req.cookies.userId;
-  const templateVars = { 
+  const templateVars = {
     currentUser: users[userId],
     urls: urlDatabase
   };
@@ -80,9 +78,9 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 app.post("/urls", (req, res) => {
-  const newKey = generateRandomString()
-  urlDatabase[newKey] = req.body.longURL
-  res.redirect(`/urls/${newKey}`)
+  const newKey = generateRandomString();
+  urlDatabase[newKey] = req.body.longURL;
+  res.redirect(`/urls/${newKey}`);
 });
 
 app.get("/u/:id", (req, res) => {
@@ -107,12 +105,12 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   
-   if (email.length === 0 || password.length === 0) {
+  if (email.length === 0 || password.length === 0) {
     res.status(400).send("Empty Username or Password");
     return;
   }
 
-  const user = getUserByEmail(email)
+  const user = getUserByEmail(email);
   
   if (user === null) {
     console.log("User not found");
@@ -127,18 +125,18 @@ app.post("/login", (req, res) => {
   }
 
   console.log("Logged in successfully");
-  res.cookie('userId',user.id)
+  res.cookie('userId',user.id);
   res.redirect('/urls');
 });
     
 
 app.post("/logout", (req, res) => {
   const userId = req.cookies.userId;
-  res.clearCookie('userId',users[userId])
-   res.redirect('/login')
- });
+  res.clearCookie('userId',users[userId]);
+  res.redirect('/login');
+});
 
- app.get("/register", (req, res) => {
+app.get("/register", (req, res) => {
   const userId = req.cookies.userId;
   const templateVars = {
     currentUser: users[userId],
