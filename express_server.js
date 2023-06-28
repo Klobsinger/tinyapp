@@ -17,6 +17,18 @@ function generateRandomString() {
 
   return randomString;
 }
+function getUserByEmail(email) {
+  for (const userKey in users) {
+    const user = users[userKey];
+    if (user.email === email) {
+      return user;
+    }
+  }
+  return null;
+}
+
+
+
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -115,16 +127,34 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const id = generateRandomString()
-  
-  const newUser = {
-    id,
-    email,
-    password,
+  const id = generateRandomString();
+
+  if (email.length === 0 || password.length === 0) {
+    res.status(400).send("Empty Username or Password");
+    return;
+  }
+
+  if (getUserByEmail(email) === null) {
+    const newUser = {
+      id,
+      email,
+      password,
+    };
+
+    users[id] = newUser;
+    res.cookie("userId", id);
+    console.log(users);
+    res.redirect('/urls');
+  } else {
+    res.status(400).send("User with the same email already exists");
+  }
+});
+
+app.get("/login", (req, res) => {
+  const userId = req.cookies.userId;
+  const templateVars = {
+    currentUser: users[userId],
+    urls: urlDatabase
   };
-  
-  users[id] = newUser;
-  res.cookie("userId", id);
-  console.log(users)
-  res.redirect('/urls')
- });
+  res.render("login.ejs", templateVars);
+});
