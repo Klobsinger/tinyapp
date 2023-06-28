@@ -104,15 +104,38 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
- const input = req.body.login
-  res.cookie('username',input)
-  res.redirect('/urls')
+  const email = req.body.email;
+  const password = req.body.password;
+  
+   if (email.length === 0 || password.length === 0) {
+    res.status(400).send("Empty Username or Password");
+    return;
+  }
+
+  const user = getUserByEmail(email)
+  
+  if (user === null) {
+    console.log("User not found");
+    res.status(403).send("User not found");
+    return;
+  }
+  
+  if (user.password !== password) {
+    console.log("Incorrect password");
+    res.status(403).send("Incorrect Password");
+    return;
+  }
+
+  console.log("Logged in successfully");
+  res.cookie('userId',user.id)
+  res.redirect('/urls');
 });
+    
 
 app.post("/logout", (req, res) => {
-  const input = req.body.login
-   res.clearCookie('username',input)
-   res.redirect('/urls')
+  const userId = req.cookies.userId;
+  res.clearCookie('userId',users[userId])
+   res.redirect('/login')
  });
 
  app.get("/register", (req, res) => {
@@ -142,7 +165,6 @@ app.post("/register", (req, res) => {
     };
 
     users[id] = newUser;
-    res.cookie("userId", id);
     console.log(users);
     res.redirect('/urls');
   } else {
