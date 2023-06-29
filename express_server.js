@@ -39,8 +39,13 @@ const users = {
 
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies.userId;
+  if (!userId) {
+    res.redirect('/login');
+    return;
+  } else {
   const templateVars = { currentUser: users[userId] };
   res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -78,14 +83,24 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 app.post("/urls", (req, res) => {
+  if (!userId) {
+    res.send('Please login to create new tinyUrlsS')
+    return;
+  } else {
   const newKey = generateRandomString();
   urlDatabase[newKey] = req.body.longURL;
   res.redirect(`/urls/${newKey}`);
+  }
 });
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
+  if (longURL === undefined) {
+    res.status(400).send("No such Url exists");
+    return;
+  } else {
   res.redirect(longURL);
+  }
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -123,8 +138,6 @@ app.post("/login", (req, res) => {
     res.status(403).send("Incorrect Password");
     return;
   }
-
-  console.log("Logged in successfully");
   res.cookie('userId',user.id);
   res.redirect('/urls');
 });
@@ -138,11 +151,16 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.cookies.userId;
+  if (userId) {
+    res.redirect('/urls');
+    return;
+  } else {
   const templateVars = {
     currentUser: users[userId],
     urls: urlDatabase
   };
   res.render("register.ejs", templateVars);
+}
 });
 
 app.post("/register", (req, res) => {
@@ -172,9 +190,14 @@ app.post("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   const userId = req.cookies.userId;
-  const templateVars = {
-    currentUser: users[userId],
-    urls: urlDatabase
-  };
-  res.render("login.ejs", templateVars);
+  if (userId) {
+    res.redirect('/urls');
+    return;
+  } else {
+    const templateVars = {
+      currentUser: users[userId],
+      urls: urlDatabase
+    };
+    res.render("login.ejs", templateVars);
+  }
 });
