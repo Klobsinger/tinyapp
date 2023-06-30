@@ -28,9 +28,25 @@ const getUserByEmail = function(email) {
   return null;
 };
 
+const urlsForUser = function(id) {
+  const userUrls = {};
+  for (const urlKey in urlDatabase) {
+    if (urlDatabase[urlKey].userID === id) {
+      userUrls[urlKey] = urlDatabase[urlKey];
+    }
+  }
+  return userUrls;
+}
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {
@@ -50,11 +66,24 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const userId = req.cookies.userId;
+  const urlId = req.params.id;
+
+  if (!userId) {
+    res.status(400).send('Please log in to view URLs<br><a href="/register">Register!!</a><br><a href="/login">Login!!</a>');
+    return;
+  }
+
+  if (!urlDatabase[urlId] || urlDatabase[urlId].userID !== userId) {
+    res.status(403).send('You do not have permission to access this URL');
+    return;
+  }
+
   const templateVars = {
     currentUser: users[userId],
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id]
+    id: urlId,
+    longURL: urlDatabase[req.params.id].longURL
   };
+
   res.render("urls_show", templateVars);
 });
 
@@ -64,9 +93,14 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userId = req.cookies.userId;
+  if( !userId) {
+    res.status(400).send('Please log in to view URLs<br><a href="/register">Register!!</a><br><a href="/login">Login!!</a>');
+      return;
+  }
+  const userUrls = urlsForUser(userId)
   const templateVars = {
     currentUser: users[userId],
-    urls: urlDatabase
+    urls: userUrls
   };
   res.render("urls_index", templateVars);
 });
@@ -83,18 +117,27 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 app.post("/urls", (req, res) => {
+  const userId = req.cookies.userId;
   if (!userId) {
-    res.send('Please login to create new tinyUrlsS')
+    res.send('Please login to create new tinyUrl')
     return;
   } else {
   const newKey = generateRandomString();
-  urlDatabase[newKey] = req.body.longURL;
+  urlDatabase[newKey] = req.body;
+  urlDatabase[newKey].userID = userId;
   res.redirect(`/urls/${newKey}`);
   }
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
+  const userId = req.cookies.userId;
+  const urlId = req.params.id;
+
+  if (!urlDatabase[urlId] || urlDatabase[urlId].userID !== userId) {
+    res.status(403).send('You do not have permission to access this URL');
+    return;
+  }
   if (longURL === undefined) {
     res.status(400).send("No such Url exists");
     return;
@@ -104,15 +147,51 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  const id = req.params.id;
-  delete urlDatabase[id];
+  const userId = req.cookies.userId;
+  const urlId = req.params.id;
+
+  if( !userId) {
+    res.status(400).send('Please log in to create URLs<br><a href="/register">Register!!</a><br><a href="/login">Login!!</a>');
+      return;
+  }
+
+  if (!urlDatabase[urlId]) {
+    res.status(404).send("URL not found");
+    return;
+  }
+
+  if (urlDatabase[urlId].userID !== userId) {
+    res.status(403).send("You do not have permission to delete this URL");
+    return;
+  }
+
+  delete urlDatabase[urlId];
+
   res.redirect('/urls/');
 });
 
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const newURL = req.body.longURL;
-  urlDatabase[id] = newURL;
+  const userId = req.cookies.userId;
+  const urlId = req.params.id;
+
+  if( !userId) {
+    res.status(400).send('Please log in to create URLs<br><a href="/register">Register!!</a><br><a href="/login">Login!!</a>');
+      return;
+  }
+
+  if (!urlDatabase[urlId]) {
+    res.status(404).send("URL not found");
+    return;
+  }
+
+  if (urlDatabase[urlId].userID !== userId) {
+    res.status(403).send("You do not have permission to edit this URL");
+    return;
+  }
+
+  urlDatabase[id].longURL = newURL;
   res.redirect('/urls/');
 });
 
@@ -182,7 +261,7 @@ app.post("/register", (req, res) => {
 
     users[id] = newUser;
     console.log(users);
-    res.redirect('/urls');
+    res.redirect('/login');
   } else {
     res.status(400).send("User with the same email already exists");
   }
