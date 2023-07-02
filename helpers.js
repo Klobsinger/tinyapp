@@ -34,9 +34,9 @@ const generateRandomString = function() {
 
   // Generate a 6-character random string by looping 6 times.
   for (let i = 0; i < 6; i++) {
-        // Generate a random index within the range of alphanumericChars.
+    // Generate a random index within the range of alphanumericChars.
     const randomIndex = Math.floor(Math.random() * alphanumericChars.length);
-     // Append the character at the random index to the randomString.
+    // Append the character at the random index to the randomString.
     randomString += alphanumericChars.charAt(randomIndex);
   }
   // Return the 6-character random alphanumeric string.
