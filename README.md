@@ -4,8 +4,11 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](#)
-!["screenshot description"](#)
+!["Screenshot of Register page"](https://github.com/lighthouse-labs/tinyapp/blob/master/docs/urls-page.png)
+
+!["Screenshot of URL editor"](https://github.com/Klobsinger/tinyapp/blob/master/docs/urls-Edit.png?raw=true)
+
+!["Screenshot of URLs page"](https://github.com/Klobsinger/tinyapp/blob/master/docs/urls-Page.png?raw=true)
 
 ## Dependencies
 
@@ -22,3 +25,5 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - go to http://localhost:8080/register to Register and get started!
 - dont use real email and password just make something up! 😱
 - Log in with registered username and password and begin shortening some links!!
+
+
